@@ -1,0 +1,134 @@
+http://www.dzurico.com/dockerize-angular-application/
+
+docker run hello-
+world 
+
+An image is a filesystem and parameters to use at runtime. It doesn’t have state and never changes. A container is a running instance of an image. When you ran the command, Docker Engine:
+
+checked to see if you had the hello-world software image
+downloaded the image from the Docker Hub (more about the hub later)
+loaded the image into the container and “ran” it
+
+A Docker image, though, is capable of much more. An image can start software as complex as a database, wait for you (or someone else) to add data, store the data for later use, and then wait for the next person.
+
+Using Docker Engine, you don’t have to worry about whether your computer can run the software in a Docker image — a Docker container can always run it.
+
+https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-16-04
+
+1 installar node:
+[sudp] npm install -g bower
+
+
+
+teracy dev
+vagrant
+virtualbox
+clone https://github.com/teracyhq/dev.git
+mkdir teracy dev
+
+Problemas encontrados:
+
+    1. Los espacios en el Dockerfile:
+    FROM node: 6 marcaba error
+    lo correcto es
+     FROM node:6
+
+    2. Poca documentación y tutoriales de docker con angular. 
+    O hay muy muy básicos o hay muy avanzados. 
+    No hay un punto medio. 
+
+    3. Al correr el container hubo un error y se canceló la ejecución. 
+    Se volvió a correr el container pero antes se tuvo que eliminar el contenedor anterior con:
+    docker ps -a
+    docker rm <id del container>
+    4. Si ya se tiene una instancia de mongo corriendo al correr el container saldrá un error diciendo que la direccion ya está en uso. 
+    Cambiar el puerto:
+    docker run -d --name mongodb -p 8080:27017 mongo
+    de esta forma al entrar a http://localhost:8080 se podrá ver la instancia de mongo. 
+
+Requisitos:
+Tener installado Node js
+Tener instalado npm
+Instalar angular-client usando npm
+
+Implementación:
+1. Hacer un directorio mean-docker en cualquier lugar de la computadora:
+	mkdir mean-docker
+2. Adentro de mean-docker hacer un directorio llamado angular-client:
+	cd mean-docker
+	mkdir angular-client
+3. Inicializar un app de angular dentro de el directorio angular-client:
+	cd angular-client
+	ng init. 
+	Esta ulima acción hace el scaffolding de una aplicación angular:
+
+	└── mean-docker
+    └── angular-client
+        ├── README.md
+        ├── angular-cli.json
+        ├── e2e
+        ├── karma.conf.js
+        ├── node_modules
+        ├── package.json
+        ├── protractor.conf.js
+        ├── src
+        └── tslint.json
+4. Al hacer ng serve podemos ver la aplicación en http://localhost:4200
+
+Dockerize la app de Angular:
+
+Para poner la app en docker necesitamos un Dockerfile: un archivo que contiene todas las instrucciones (comandos) que un usuario podría realizar en su terminal para ensamblar la imagen de la app en docker.
+
+1. Crear el Dockerfile dentro de la carpeta angular-client:
+	cd angular-client
+	touch Dockerfile
+2. Cambiar en el package.json el script start de la app para asegurarse de que el app corra desde el host creado por la imagen de docker:
+    
+    {
+        ...
+        "scripts": {
+        "start": "ng serve -H 0.0.0.0",
+        ...
+    },
+        ...
+    }
+3. Hacer el build la imagen con el comando docker build -t <image_tag>:<tag> <directory_with_Dockerfile>
+    cd angular-client
+    docker build -t angular-client:dev .
+
+4. Ejecutar el container de docker basado en la imagen con docker run -d --name <container_name> -p <host-port:exposed-port>  <image-name>
+
+5. Si no hay problema la app debe ser visible en http://localhost:4200
+
+6. Parar el container:
+    docker stop angular-client
+
+Dockerize Express server api
+1. Hacer una carpeta llamada express-server dentro de mean-docker:
+    cd mean-docker
+    mkdir express-server
+2. Hacer el package.json:
+    touch package.json
+3. Crear una app de express dentro del directorio:
+    cd express-serve
+    touch server.js
+    mkdir routes && cd routes
+    touch api.js
+4. installar las dependencias del package.json y correr la app:
+    cd express-server
+    npm install
+    npm start
+    La app se puede ver en http://localhost:3000
+5. Crear un Dockerfile para express-server dentro de la carpeta express-server:
+    touch Dockerfile
+6. Hacer el build de la imagen:
+    docker build -t express-server:dev .
+7.  Correr el container:
+    docker run -d --name express-server -p 3000:3000 express-server:dev    
+    La app debe ser visible en http://localhost:3000
+8. Para el container:
+    docker stop express-server
+
+MongoDB container:
+1. No necesitamos un Dockerfile para hacer una imagen de mongo porque ya existe una en el Docker Hub. Solo necesitamos correrlo:
+    docker run -d --name mongodb -p 27017:27017 mongo
