@@ -1,0 +1,18 @@
+version: '2' # Versión de docker compose
+
+# Definir los servicios y los contenedores que se ejecutarán
+services:
+  angular: # Nombre de la primera app
+    build: angular-client # directorio
+    ports:
+      - "4200:4200" # puertos
+
+  express: #nombre de la segunda
+    build: express-server # directorio
+    ports:
+      - "3000:3000" #puertos
+
+  database: # name of the third service
+    image: mongo # la imagen de donde jalamos mongo
+    ports:
+      - "8080:27017" # puertos(Este se cambió para que no choque con alguna instancia de mongo)
